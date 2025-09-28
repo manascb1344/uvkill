@@ -12,7 +12,13 @@ This tool allows you to list any _Python virtual environment_ directories in you
 
 ## About
 
-UVKill is a modified version of NPKill designed specifically for Python virtual environments. Instead of searching for node_modules directories, it finds and helps you remove Python virtual environments like .venv, venv, virtualenv, and others.
+UVKill is a fork of [NPKill](https://github.com/voidcosmos/npkill) specifically adapted for Python virtual environments. While NPKill helps you find and remove node_modules directories, UVKill focuses on Python virtual environments like .venv, venv, virtualenv, and others.
+
+### Credits
+
+This project is based on [NPKill](https://github.com/voidcosmos/npkill) by [Nya García Gallardo](https://github.com/NyaGarcia) and [Juan Torres Gómez](https://github.com/zaldih). We've adapted their excellent work to serve the Python community's needs for virtual environment management.
+
+**Original NPKill Project**: https://github.com/voidcosmos/npkill
 
 ## Table of Contents
 
@@ -293,8 +299,14 @@ If you want to contribute check the [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 
 # :scroll: License
 
-MIT © [Nya García Gallardo](https://github.com/NyaGarcia) and [Juan Torres Gómez](https://github.com/zaldih)
+MIT License
 
-Based on NPKill, adapted for Python virtual environments.
+**UVKill** - Python virtual environment management tool  
+Adapted from [NPKill](https://github.com/voidcosmos/npkill)
+
+**Original NPKill Authors**: [Nya García Gallardo](https://github.com/NyaGarcia) and [Juan Torres Gómez](https://github.com/zaldih)  
+**UVKill Adaptation**: [manascb1344](https://github.com/manascb1344)
+
+This project is a fork of NPKill, adapted for Python virtual environments while maintaining the same MIT license.
 
 ---
