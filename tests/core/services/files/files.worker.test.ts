@@ -13,7 +13,7 @@ const tunnelPostMock = jest.fn();
 
 let dirEntriesMock: { name: string; isDirectory: () => void }[] = [];
 const basePath = '/home/user/';
-const target = 'node_modules';
+const target = '.venv';
 
 // const opendirPathMock = jest.fn();
 // const opendirDirMock = jest.fn();
@@ -58,6 +58,17 @@ jest.unstable_mockModule('fs/promises', () => ({
       isSymbolicLink: () => false,
     }),
   readdir: () => Promise.resolve([]),
+}));
+
+jest.unstable_mockModule('fs', () => ({
+  existsSync: jest.fn().mockImplementation((path: unknown) => {
+    // Mock Python virtual environment detection
+    return (
+      String(path).includes('pyvenv.cfg') ||
+      String(path).includes('bin/activate') ||
+      String(path).includes('bin/python')
+    );
+  }),
 }));
 
 jest.unstable_mockModule('node:worker_threads', () => ({
@@ -136,7 +147,7 @@ describe('FileWorker', () => {
   });
 
   describe('should mark "isTarget" correctly', () => {
-    const sampleTargets = ['node_modules', 'dist'];
+    const sampleTargets = ['.venv', 'venv'];
 
     sampleTargets.forEach((target) => {
       it('when target is ' + target, (done) => {
@@ -145,7 +156,7 @@ describe('FileWorker', () => {
           { name: 'file1.cs', isDirectory: () => false },
           { name: '.gitignore', isDirectory: () => false },
           { name: 'dir1', isDirectory: () => true },
-          { name: 'node_modules', isDirectory: () => true },
+          { name: target, isDirectory: () => true },
           { name: 'file3.txt', isDirectory: () => false },
           { name: 'dir2', isDirectory: () => true },
         ];
@@ -181,14 +192,14 @@ describe('FileWorker', () => {
     it('when a simple patterns is gived', (done) => {
       const excluded = ['ignorethis', 'andignorethis'];
       setExploreConfig({
-        targets: ['node_modules'],
+        targets: ['.venv'],
         exclude: excluded,
       });
       const subDirectories = [
         { name: 'file1.cs', isDirectory: () => false },
         { name: '.gitignore', isDirectory: () => false },
         { name: 'dir1', isDirectory: () => true },
-        { name: 'node_modules', isDirectory: () => true },
+        { name: '.venv', isDirectory: () => true },
         { name: 'ignorethis', isDirectory: () => true },
         { name: 'andignorethis', isDirectory: () => true },
         { name: 'dir2', isDirectory: () => true },
@@ -201,7 +212,7 @@ describe('FileWorker', () => {
         )
         .map((subdir) => ({
           path: join(basePath, subdir.name),
-          isTarget: subdir.name === 'node_modules',
+          isTarget: subdir.name === '.venv',
         }));
 
       let results: unknown[];
@@ -223,14 +234,14 @@ describe('FileWorker', () => {
     it('when a part of path is gived', (done) => {
       const excluded = ['user/ignorethis'];
       setExploreConfig({
-        targets: ['node_modules'],
+        targets: ['.venv'],
         exclude: excluded.map(normalize),
       });
       const subDirectories = [
         { name: 'file1.cs', isDirectory: () => false },
         { name: '.gitignore', isDirectory: () => false },
         { name: 'dir1', isDirectory: () => true },
-        { name: 'node_modules', isDirectory: () => true },
+        { name: '.venv', isDirectory: () => true },
         { name: 'ignorethis', isDirectory: () => true },
         { name: 'andNOTignorethis', isDirectory: () => true },
         { name: 'dir2', isDirectory: () => true },
@@ -243,7 +254,7 @@ describe('FileWorker', () => {
         )
         .map((subdir) => ({
           path: join(basePath, subdir.name),
-          isTarget: subdir.name === 'node_modules',
+          isTarget: subdir.name === '.venv',
         }));
 
       let results: unknown[];

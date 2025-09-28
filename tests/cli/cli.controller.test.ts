@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { StartParameters } from '../../src/cli/models/start-parameters.model.js';
-import { Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { DeleteResult, Npkill, ScanStatus } from '../../src/core/index.js';
 import { LoggerService } from '../../src/core/services/logger.service.js';
 import { ResultsService } from '../../src/cli/services/results.service.js';
@@ -134,7 +134,9 @@ describe('CliController test', () => {
     getResultsCount: jest.fn(() => 0),
   };
 
-  const npkillDeleteMock = jest.fn();
+  const npkillDeleteMock = jest.fn().mockImplementation(() => {
+    return of({ success: true });
+  });
   const npkillMock: Npkill = {
     logger: loggerServiceMock,
     isValidRootFolder: linuxFilesServiceMock.isValidRootFolder,
@@ -285,14 +287,14 @@ describe('CliController test', () => {
 
       beforeEach(() => {
         testFolder = {
-          path: '/my/path/node_modules',
+          path: '/my/path/.venv',
           success: true,
         };
         jest.clearAllMocks();
       });
 
       it('Should call normal deleteDir function when no --dry-run is included', () => {
-        mockParameters({ targets: ['node_modules'], 'dry-run': 'false' });
+        mockParameters({ targets: ['.venv'], 'dry-run': 'false' });
         cliController.init();
 
         expect(npkillDeleteMock).toHaveBeenCalledTimes(0);
@@ -306,7 +308,7 @@ describe('CliController test', () => {
       });
 
       it('Should call fake deleteDir function instead of deleteDir', () => {
-        mockParameters({ targets: ['node_modules'], 'dry-run': true });
+        mockParameters({ targets: ['.venv'], 'dry-run': true });
         cliController.init();
 
         expect(npkillDeleteMock).toHaveBeenCalledTimes(0);

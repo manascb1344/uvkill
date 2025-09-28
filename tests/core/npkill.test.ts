@@ -84,7 +84,7 @@ describe('Npkill', () => {
     it('should initialize with custom services', () => {
       expect(npkill).toBeInstanceOf(Npkill);
       expect(loggerMock.info).toHaveBeenCalledWith(
-        expect.stringContaining('Npkill started!'),
+        expect.stringContaining('UVKill started!'),
       );
     });
 
