@@ -5,7 +5,7 @@
 ### Easily find and **remove** old and heavy <font color="red">**Python virtual environments**</font> folders :sparkles:
 
 <p align="center">
-  <img src="/docs/npkill-demo-0.10.0.gif" alt="npkill demo GIF" />
+  <img src="/docs/npkill-demo-0.10.0.gif" alt="uvkill demo GIF" />
 </p>
 
 This tool allows you to list any _Python virtual environment_ directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space. Yay!
@@ -28,7 +28,6 @@ UVKill is a modified version of NPKill designed specifically for Python virtual 
 - [Roadmap](#roadmap)
 - [Known bugs](#known-bugs)
 - [Contributing](#contributing)
-- [Buy us a coffee](#donations)
 - [License](#license)
 
 <a name="features"></a>
@@ -115,25 +114,25 @@ After pressing <kbd>V</kbd> to enter range selection mode:
 
 ## Options
 
-| ARGUMENT                         | DESCRIPTION                                                                                                                                                                         |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| -c, --bg-color                   | Change row highlight color. _(Available: **blue**, cyan, magenta, white, red and yellow)_                                                                                           |
-| -d, --directory                  | Set the directory from which to begin searching. By default, starting-point is .                                                                                                    |
-| -D, --delete-all                 | Automatically delete all node_modules folders that are found. Suggested to be used together with `-x`.                                                                              |
-| -e, --hide-errors                | Hide errors if any                                                                                                                                                                  |
-| -E, --exclude                    | Exclude directories from search (directory list must be inside double quotes "", each directory separated by ',' ) Example: "ignore1, ignore2"                                      |
-| -f, --full                       | Start searching from the home of the user (example: "/home/user" in linux)                                                                                                          |
-| --size-unit                      | Set the unit for displaying folder sizes. _(Available: **auto**, mb, gb)_. With auto, sizes < 1024MB are shown in MB (rounded), larger sizes in GB (with decimals).                 |
-| -h, --help, ?                    | Show this help page and exit                                                                                                                                                        |
-| -nu, --no-check-update           | Don't check for updates on startup                                                                                                                                                  |
-| -s, --sort                       | Sort results by: `size`, `path` or `last-mod`                                                                                                                                       |
-| -t, --target                     | Specify the name of the directories you want to search for (by default, it's 'node_modules'). You can define multiple targets separating with comma. Ej. `-t node_modules,.cache,`. |
+| ARGUMENT                         | DESCRIPTION                                                                                                                                                               |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -c, --bg-color                   | Change row highlight color. _(Available: **blue**, cyan, magenta, white, red and yellow)_                                                                                 |
+| -d, --directory                  | Set the directory from which to begin searching. By default, starting-point is .                                                                                          |
+| -D, --delete-all                 | Automatically delete all virtual environment folders that are found. Suggested to be used together with `-x`.                                                             |
+| -e, --hide-errors                | Hide errors if any                                                                                                                                                        |
+| -E, --exclude                    | Exclude directories from search (directory list must be inside double quotes "", each directory separated by ',' ) Example: "ignore1, ignore2"                            |
+| -f, --full                       | Start searching from the home of the user (example: "/home/user" in linux)                                                                                                |
+| --size-unit                      | Set the unit for displaying folder sizes. _(Available: **auto**, mb, gb)_. With auto, sizes < 1024MB are shown in MB (rounded), larger sizes in GB (with decimals).       |
+| -h, --help, ?                    | Show this help page and exit                                                                                                                                              |
+| -nu, --no-check-update           | Don't check for updates on startup                                                                                                                                        |
+| -s, --sort                       | Sort results by: `size`, `path` or `last-mod`                                                                                                                             |
+| -t, --target                     | Specify the name of the directories you want to search for (by default, searches for Python virtual environments). You can define multiple targets separating with comma. |
 |                                  |
-| -x, --exclude-hidden-directories | Exclude hidden directories ("dot" directories) from search.                                                                                                                         |
-| --dry-run                        | It does not delete anything (will simulate it with a random delay).                                                                                                                 |
-| --json                           | Output results in JSON format at the end of the scan. Useful for automation and scripting.                                                                                          |
-| --json-stream                    | Output results in streaming JSON format (one JSON object per line as results are found). Useful for real-time processing.                                                           |
-| -v, --version                    | Show npkill version                                                                                                                                                                 |
+| -x, --exclude-hidden-directories | Exclude hidden directories ("dot" directories) from search.                                                                                                               |
+| --dry-run                        | It does not delete anything (will simulate it with a random delay).                                                                                                       |
+| --json                           | Output results in JSON format at the end of the scan. Useful for automation and scripting.                                                                                |
+| --json-stream                    | Output results in streaming JSON format (one JSON object per line as results are found). Useful for real-time processing.                                                 |
+| -v, --version                    | Show uvkill version                                                                                                                                                       |
 
 **Warning:** _In future versions some commands may change_
 
@@ -141,69 +140,69 @@ After pressing <kbd>V</kbd> to enter range selection mode:
 
 ## Examples
 
-- Search **node_modules** directories in your _projects_ directory:
+- Search **virtual environments** in your _projects_ directory:
 
 ```bash
-npkill -d ~/projects
+uvkill -d ~/projects
 
 # other alternative:
 cd ~/projects
-npkill
+uvkill
 ```
 
-- List directories named "dist" and show errors if any occur:
+- List directories named ".venv" and show errors if any occur:
 
 ```bash
-npkill --target dist -e
+uvkill --target .venv -e
 ```
 
 - Displays the magenta color cursor... because I like magenta!
 
 ```bash
-npkill --bg-color magenta
+uvkill --bg-color magenta
 ```
 
-- List **vendor** directories in your _projects_ directory, sort by size, and show size in gb:
+- List **virtual environments** in your _projects_ directory, sort by size, and show size in gb:
 
 ```bash
-npkill -d '~/more projects' --size-unit gb --sort size --target vendor
+uvkill -d '~/my projects' --size-unit gb --sort size
 ```
 
-- List **node_modules** in your _projects_ directory, excluding the ones in _progress_ and _ignore-this_ directories:
+- List **virtual environments** in your _projects_ directory, excluding the ones in _production_ and _ignore-this_ directories:
 
 ```bash
-npkill -d 'projects' --exclude "progress, ignore-this"
+uvkill -d 'projects' --exclude "production, ignore-this"
 ```
 
-- Automatically delete all node_modules that have sneaked into your backups:
+- Automatically delete all virtual environments that have sneaked into your backups:
 
 ```bash
-npkill -d ~/backups/ --delete-all
+uvkill -d ~/backups/ --delete-all
 ```
 
 - Get results in JSON format for automation or further processing:
 
 ```bash
-npkill --json > results.json
+uvkill --json > results.json
 ```
 
 - Stream results in real-time as JSON (useful for monitoring or piping to other tools):
 
 ```bash
-npkill --json-stream | jq '.'
+uvkill --json-stream | jq '.'
 ```
 
 - Save only successful results to a file, ignoring errors:
 
 ```bash
-npkill --json-stream 2>/dev/null | jq -s '.' > clean-results.json
+uvkill --json-stream 2>/dev/null | jq -s '.' > clean-results.json
 ```
 
 <a name="json-output"></a>
 
 ## JSON Output
 
-Npkill supports JSON output formats for automation and integration with other tools:
+UVKill supports JSON output formats for automation and integration with other tools:
 
 - **`--json`**: Output all results as a single JSON object at the end of the scan
 - **`--json-stream`**: Output each result as a separate JSON object in real-time
@@ -214,13 +213,13 @@ For detailed documentation, examples, and TypeScript interfaces, see [JSON Outpu
 
 ```bash
 # Get all results as JSON
-npkill --json > results.json
+uvkill --json > results.json
 
 # Process results in real-time
-npkill --json-stream | jq '.result.path'
+uvkill --json-stream | jq '.result.path'
 
 # Find directories larger than 100MB
-npkill --json | jq '.results[] | select(.size > 104857600)'
+uvkill --json | jq '.results[] | select(.size > 104857600)'
 ```
 
 <a name="setup-locally"></a>
@@ -229,10 +228,10 @@ npkill --json | jq '.results[] | select(.size > 104857600)'
 
 ```bash
 # -- First, clone the repository
-git clone https://github.com/voidcosmos/npkill.git
+git clone https://github.com/manascb1344/uvkill.git
 
 # -- Navigate to the dir
-cd npkill
+cd uvkill
 
 # -- Install dependencies
 npm install
@@ -249,9 +248,9 @@ npm run start -- -f -e
 
 # :bookmark_tabs: API
 
-The api allows you to interact with npkill from node to create your own implementations in your scripts (automations, for example).
+The API allows you to interact with uvkill from node to create your own implementations in your scripts (automations, for example).
 
-You can check the basic API [here](./API.md) or on the web (comming soon).
+You can check the basic API [here](./API.md).
 
 <a name="roadmap"></a>
 
@@ -290,38 +289,12 @@ You can check the basic API [here](./API.md) or on the web (comming soon).
 
 If you want to contribute check the [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 
-<a name="donations"></a>
-
-# :coffee: Buy us a coffee
-
-<img align="right" width="300" src="https://npkill.js.org/img/cat-donation-cup.png">
-We have developed npkill in our free time, because we are passionate about the programming sector.
-Tomorrow we would like to dedicate ourselves to this, but first, we have a long way to go.
-
-We will continue to do things anyway, but donations are one of the many ways to support what we do.
-
-<span class="badge-opencollective"><a href="https://opencollective.com/npkill/contribute" title="Donate to this project using Open Collective"><img src="https://img.shields.io/badge/open%20collective-donate-green.svg" alt="Open Collective donate button" /></a></span>
-
-### Thanks!!
-
-## A huge thank you to our backers :heart:
-
-<a href="https://opencollective.com/npkill#backers" target="_blank"><img width="535" src="https://opencollective.com/npkill/tiers/backer.svg?width=535"></a>
-
----
-
-### Crypto alternative
-
-- btc: 1ML2DihUoFTqhoQnrWy4WLxKbVYkUXpMAX
-- bch: 1HVpaicQL5jWKkbChgPf6cvkH8nyktVnVk
-- eth: 0x7668e86c8bdb52034606db5aa0d2d4d73a0d4259
-
 <a name="license"></a>
 
 # :scroll: License
 
 MIT © [Nya García Gallardo](https://github.com/NyaGarcia) and [Juan Torres Gómez](https://github.com/zaldih)
 
-:cat::baby_chick:
+Based on NPKill, adapted for Python virtual environments.
 
 ---
