@@ -10,7 +10,7 @@ export class GeneralUi extends BaseUi {
     const { spaceReleased } = stats;
     let exitMessage = `Space released: ${spaceReleased}\n`;
     exitMessage += colors['gray'](
-      'Thanks for using npkill!\nLike it? Give us a star http://github.com/voidcosmos/npkill\n',
+      'Thanks for using uvkill!\nLike it? Give us a star http://github.com/manascb1344/uvkill\n',
     );
     this.print(exitMessage);
   }

@@ -40,7 +40,7 @@ export class Npkill implements NpkillInterface {
     );
     this.services = { ...defaultServices, ...customServices };
     this.logger.info(process.argv.join(' '));
-    this.logger.info(`Npkill started! v${this.getVersion()}`);
+    this.logger.info(`UVKill started! v${this.getVersion()}`);
   }
 
   private searchDuration = 0;

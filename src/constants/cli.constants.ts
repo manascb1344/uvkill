@@ -67,7 +67,7 @@ export const OPTIONS: ICliOptions[] = [
     arg: ['-t', '--target'],
     description:
       // eslint-disable-next-line quotes
-      "Specify the name of the directories you want to search for (by default, it's 'node_modules'). You can define multiple targets separating with comma. Ej. `-t node_modules,.cache,`.",
+      "Specify the name of the directories you want to search for (by default, it's '.venv,venv,virtualenv'). You can define multiple targets separating with comma. Ej. `-t .venv,env,myenv`.",
     name: 'target-folder',
   },
   {
@@ -98,7 +98,7 @@ export const OPTIONS: ICliOptions[] = [
   },
 ];
 
-export const HELP_HEADER = `This tool allows you to list any node_modules directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space.
+export const HELP_HEADER = `This tool allows you to list any Python virtual environment directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space.
  ┌------ CONTROLS --------------------
  🭲 SPACE, DEL:            delete selected result
  🭲 Cursor UP, k:          move up
@@ -119,7 +119,7 @@ export const HELP_PROGRESSBAR = ` ------- PROGRESS BAR --------------------
 `;
 
 export const HELP_FOOTER =
-  'Not all node_modules are bad! Some applications (like vscode, Discord, etc) need those dependencies to work. If their directory is deleted, the application will probably break (until the dependencies are reinstalled). NPKILL will show you these directories by highlighting them ⚠️';
+  'Not all virtual environments are safe to delete! Some environments may be needed for production applications or system tools. If deleted, you can recreate them using requirements.txt, pyproject.toml, or similar. UVKILL will show you potentially sensitive directories by highlighting them ⚠️';
 
 export const COLORS = {
   red: 'bgRed',

@@ -196,7 +196,18 @@ export abstract class FileService implements IFileService {
   }
 
   async getFileStatsInDir(dirname: string): Promise<IFileStat[]> {
-    const ignoredFolders = ['node_modules', '.git', 'coverage', 'dist'];
+    const ignoredFolders = [
+      '.venv',
+      'venv',
+      'virtualenv',
+      '.virtualenv',
+      'env',
+      '.env',
+      '.git',
+      'coverage',
+      'dist',
+      '__pycache__',
+    ];
 
     let files: IFileStat[] = [];
     const items = await readdir(dirname, { withFileTypes: true });

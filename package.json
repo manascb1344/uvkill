@@ -1,7 +1,7 @@
 {
-  "name": "npkill",
-  "version": "0.12.2",
-  "description": "List any node_modules directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space.",
+  "name": "uvkill",
+  "version": "0.1.0",
+  "description": "List any Python virtual environment directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space.",
   "exports": "./lib/index.js",
   "type": "module",
   "engines": {
@@ -11,20 +11,23 @@
     "access": "public"
   },
   "bin": {
-    "npkill": "lib/index.js"
+    "uvkill": "lib/index.js"
   },
-  "author": "Nya Garcia & Juan Torres",
+  "author": "Modified from NPKill for Python environments",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zaldih/npkill"
+    "url": "https://github.com/manascb1344/uvkill"
   },
   "license": "MIT",
   "keywords": [
     "cli",
     "free up space",
-    "npm",
-    "node",
-    "modules",
+    "python",
+    "virtual",
+    "environment",
+    "venv",
+    "virtualenv",
+    "uv",
     "clean",
     "tool",
     "delete",

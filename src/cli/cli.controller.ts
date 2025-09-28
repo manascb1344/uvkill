@@ -76,7 +76,7 @@ export class CliController {
   ) {}
 
   init(): void {
-    this.logger.info(`Npkill CLI started! v${this.getVersion()}`);
+    this.logger.info(`UVKill CLI started! v${this.getVersion()}`);
 
     this.parseArguments();
 
@@ -639,7 +639,7 @@ export class CliController {
     this.uiService.clear();
     this.uiService.setCursorVisible(true);
     this.printExitMessage();
-    this.logger.info('Thank for using npkill. Bye!');
+    this.logger.info('Thank for using uvkill. Bye!');
     const logPath = this.logger.getSuggestLogFilePath();
     this.logger.saveToFile(logPath);
     // eslint-disable-next-line n/no-process-exit

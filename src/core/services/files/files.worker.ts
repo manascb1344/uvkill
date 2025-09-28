@@ -1,5 +1,6 @@
 import { Dir, Dirent } from 'fs';
 import { lstat, opendir, readdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import EventEmitter from 'events';
 import { WorkerMessage, WorkerScanOptions } from './files.worker.service.js';
 import { join } from 'path';
@@ -261,9 +262,12 @@ class FileWalker {
       return;
     }
 
+    // Enhanced Python virtual environment detection
+    const isTarget = this.isPythonVirtualEnv(subpath, entry.name);
+
     results.push({
       path: subpath,
-      isTarget: this.isTargetFolder(entry.name),
+      isTarget: isTarget,
     });
   }
 
@@ -276,6 +280,40 @@ class FileWalker {
 
   private isTargetFolder(path: string): boolean {
     return this.searchConfig.targets.includes(path);
+  }
+
+  private isPythonVirtualEnv(dirPath: string, dirName: string): boolean {
+    // Check if directory name matches common virtual environment names
+    if (!this.searchConfig.targets.includes(dirName)) {
+      return false;
+    }
+
+    try {
+      // Check for pyvenv.cfg file (primary indicator)
+      const pyvenvPath = join(dirPath, 'pyvenv.cfg');
+      if (existsSync(pyvenvPath)) {
+        return true;
+      }
+
+      // Check for activate script (backup indicator)
+      const activateUnix = join(dirPath, 'bin', 'activate');
+      const activateWin = join(dirPath, 'Scripts', 'activate.bat');
+      if (existsSync(activateUnix) || existsSync(activateWin)) {
+        return true;
+      }
+
+      // Check for Python interpreter
+      const pythonUnix = join(dirPath, 'bin', 'python');
+      const pythonWin = join(dirPath, 'Scripts', 'python.exe');
+      if (existsSync(pythonUnix) || existsSync(pythonWin)) {
+        return true;
+      }
+    } catch (error) {
+      // If we can't access the directory, assume it's not a virtual env
+      return false;
+    }
+
+    return false;
   }
 
   private completeTask(): void {

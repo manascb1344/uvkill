@@ -20,7 +20,7 @@ export const DEFAULT_CONFIG: IConfig = {
   maxSimultaneousSearch: 6,
   showErrors: true,
   sortBy: 'none',
-  targets: ['node_modules'],
+  targets: ['.venv', 'venv', '.virtualenv', 'virtualenv', 'env', '.env'],
   yes: false,
   jsonStream: false,
   jsonSimple: false,
@@ -72,12 +72,12 @@ export const UI_POSITIONS = {
 //   'e', // Show errors
 // ];
 
-export const BANNER = `-----                    __   .__.__  .__
--           ____ ______ |  | _|__|  | |  |
-------     /    \\\\____ \\|  |/ /  |  | |  |
-----      |   |  \\  |_> >    <|  |  |_|  |__
---        |___|  /   __/|__|_ \\__|____/____/
--------        \\/|__|        \\/
+export const BANNER = `-----                    __   ____  ____.__.__  .__
+-           __ _____   _|  | _|    ||    |  | |  |
+------     |  |  \\  \\ / /  |/ /    ||    |  | |  |
+----       |  |  /\\  V /|    <|    ||    |  |_|  |__
+--         |____/  \\_/ |__|_ \\____||____|____/____/
+-------                    \\/
 `;
 
 export const STREAM_ENCODING = 'utf8';

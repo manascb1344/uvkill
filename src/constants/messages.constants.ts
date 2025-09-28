@@ -10,19 +10,19 @@ export const INFO_MSGS = {
   DELETING_FOLDER: '[..deleting..] ',
   ERROR_DELETING_FOLDER: '[ ERROR ] ',
   HEADER_COLUMNS: 'Age    Size', // Δ (delta) for last_mod/age?
-  HELP_TITLE: ' NPKILL HELP ',
+  HELP_TITLE: ' UVKILL HELP ',
   MIN_CLI_CLOMUNS:
     'Oh no! The terminal is too narrow. Please, ' +
     'enlarge it (This will be fixed in future versions. Disclose the inconveniences)',
-  NEW_UPDATE_FOUND: 'New version found! npm i -g npkill for update.',
+  NEW_UPDATE_FOUND: 'New version found! npm i -g uvkill for update.',
   NO_TTY:
-    'Oh no! Npkill does not support this terminal (TTY is required). This ' +
+    'Oh no! UVkill does not support this terminal (TTY is required). This ' +
     'is a bug, which has to be fixed. Please try another command interpreter ' +
     '(for example, CMD in windows)',
   NO_VALID_SORT_NAME: 'Invalid sort option. Available: path | size | last-mod',
   NO_VALID_SIZE_UNIT: 'Invalid size-unit option. Available: auto | mb | gb',
   STARTING: 'Initializing ',
-  SEARCHING: 'Searching ',
+  SEARCHING: 'Searching for Python virtual environments ',
   CALCULATING_STATS: 'Calculating stats ',
   FATAL_ERROR: 'Fatal error ',
   SEARCH_COMPLETED: 'Search completed ',
@@ -31,7 +31,7 @@ export const INFO_MSGS = {
   DRY_RUN: 'Dry run mode',
   DELETE_ALL_WARNING:
     '    --delete-all may have undesirable effects and\n' +
-    '    delete dependencies needed by some applications.\n' +
+    '    delete virtual environments needed by some projects.\n' +
     '    Recommended to use -x and preview with --dry-run.\n\n' +
     '                 Press y to continue.\n\n' +
     '           pass -y to not show this next time',
@@ -46,6 +46,6 @@ export const ERROR_MSG = {
 };
 
 export const RESULT_TYPE_INFO = {
-  NODE_MODULES:
-    'Holds all the node packages your project depends on. Can get huge. Deleting it won’t hurt—just. You can run `npm install` to restore it.',
+  VIRTUAL_ENV:
+    "Contains Python packages and dependencies for a project. Can get huge. Deleting it won't hurt the project—you can recreate it using requirements.txt or similar.",
 };

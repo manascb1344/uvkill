@@ -1,29 +1,18 @@
 <p align="center">
-  <img src="./docs/npkill-text-clean.svg" width="380" alt="npkill logo" />
-</p>
-<p align="center">
-<img alt="npm" src="https://img.shields.io/npm/dy/npkill.svg">
-<a href="#donations"><img src="https://img.shields.io/badge/donate-<3-red" alt="Donations Badge"/></a>
-<img alt="npm version" src="https://img.shields.io/npm/v/npkill.svg">
-<img alt="NPM" src="https://img.shields.io/npm/l/npkill.svg">
+  <h1>UVKill</h1>
 </p>
 
-### Easily find and **remove** old and heavy <font color="red">**node_modules**</font> folders :sparkles:
+### Easily find and **remove** old and heavy <font color="red">**Python virtual environments**</font> folders :sparkles:
 
 <p align="center">
   <img src="/docs/npkill-demo-0.10.0.gif" alt="npkill demo GIF" />
 </p>
 
-This tool allows you to list any _node_modules_ directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space. Yay!
+This tool allows you to list any _Python virtual environment_ directories in your system, as well as the space they take up. You can then select which ones you want to erase to free up space. Yay!
 
-## i18n
+## About
 
-We're making an effort to internationalize the Npkill docs. Here's a list of the available translations:
-
-- [Español](./README.es.md)
-- [Indonesian](./README.id.md)
-- [Português](./README.pt.md)
-- [Turkish](./README.tr.md)
+UVKill is a modified version of NPKill designed specifically for Python virtual environments. Instead of searching for node_modules directories, it finds and helps you remove Python virtual environments like .venv, venv, virtualenv, and others.
 
 ## Table of Contents
 
@@ -46,13 +35,15 @@ We're making an effort to internationalize the Npkill docs. Here's a list of the
 
 # :heavy_check_mark: Features
 
-- **Clear space:** Get rid of old and dusty _node_modules_ cluttering up your machine.
+- **Clear space:** Get rid of old and dusty _Python virtual environments_ cluttering up your machine.
 
 - **Last Workspace Usage**: Check when was the last time you modified a file in the workspace (indicated in the **last_mod** column).
 
-- **Very fast:** NPKILL is written in TypeScript, but searches are performed at a low level, improving performance greatly.
+- **Very fast:** UVKill is written in TypeScript, but searches are performed at a low level, improving performance greatly.
 
-- **Easy to use:** Say goodbye to lengthy commands. Using npkill is as simple as reading a list of your node_modules, and pressing Del to get rid of them. Could it be any easier? ;)
+- **Easy to use:** Say goodbye to lengthy commands. Using uvkill is as simple as reading a list of your virtual environments, and pressing Del to get rid of them. Could it be any easier? ;)
+
+- **Python-aware:** Detects virtual environments by looking for pyvenv.cfg, activate scripts, and Python interpreters.
 
 - **Minified:** It barely has any dependencies.
 
@@ -64,28 +55,28 @@ You don't really need to install it to use it!
 Simply use the following command:
 
 ```bash
-$ npx npkill
+$ npx uvkill
 ```
 
 Or if for some reason you really want to install it:
 
 ```bash
-$ npm i -g npkill
+$ npm i -g uvkill
 # Unix users may need to run the command with sudo. Go carefully
 ```
 
-> NPKILL does not support node<v14. If this affects you you can use `npkill@0.8.3`
+> UVKill requires node>=v18.18.0
 
 <a name="usage"></a>
 
 # :clipboard: Usage
 
 ```bash
-$ npx npkill
-# or just npkill if installed globally
+$ npx uvkill
+# or just uvkill if installed globally
 ```
 
-By default, npkill will scan for node_modules starting at the path where `npkill` command is executed.
+By default, uvkill will scan for Python virtual environments starting at the path where `uvkill` command is executed.
 
 Move between the listed folders with <kbd>↓</kbd> <kbd>↑</kbd>, and use <kbd>Space</kbd> or <kbd>Del</kbd> to delete the selected folder.
 You can also use <kbd>j</kbd> and <kbd>k</kbd> to move between the results.
@@ -94,7 +85,7 @@ You can open the directory where the selected result is placed by pressing <kbd>
 
 To exit, <kbd>Q</kbd> or <kbd>Ctrl</kbd> + <kbd>c</kbd> if you're brave.
 
-**Important!** Some applications installed on the system need their node_modules directory to work and deleting them may break them. NPKILL will highlight them by displaying a :warning: to be careful.
+**Important!** Some virtual environments may be needed by production applications or system tools. UVKill will highlight potentially sensitive directories by displaying a :warning: to be careful.
 
 ## Multi-Select Mode
 
