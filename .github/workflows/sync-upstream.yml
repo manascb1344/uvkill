@@ -75,6 +75,11 @@ jobs:
           git reset --hard upstream/main
           echo "✅ Updated branch with latest upstream code"
 
+      - name: Push sync branch
+        if: steps.check_commits.outputs.has_new_commits == 'true'
+        run: |
+          git push origin $SYNC_BRANCH
+
       - name: Create PR with upstream changes
         if: steps.check_commits.outputs.has_new_commits == 'true'
         uses: peter-evans/create-pull-request@v7
