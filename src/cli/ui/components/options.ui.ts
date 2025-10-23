@@ -149,7 +149,7 @@ export class OptionsUi extends BaseUi implements InteractiveUi {
       if (opt.key === 'sizeUnit') {
         this.config[key] = opt.value as IConfig['sizeUnit'];
       } else {
-        this.config[opt.key as any] = opt.value as IConfig[typeof opt.key];
+        (this.config as any)[opt.key] = opt.value;
       }
 
       this.emitConfigChange(opt.key, opt.value);
@@ -189,7 +189,7 @@ export class OptionsUi extends BaseUi implements InteractiveUi {
         >;
         const newValue: IConfig[typeof opt.key] = this
           .editBuffer as IConfig[typeof opt.key];
-        this.config[key as any] = newValue as unknown as string;
+        (this.config as any)[key] = newValue;
         opt.value = newValue;
         this.emitConfigChange(opt.key, newValue);
       }

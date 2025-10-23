@@ -11,6 +11,7 @@ import { UiService } from '../../src/cli/services/ui.service.js';
 import { ScanService } from '../../src/cli/services/scan.service.js';
 import { ERROR_MSG } from '../../src/constants/messages.constants.js';
 import { JsonOutputService } from '../../src/cli/services/json-output.service.js';
+import { ProfilesService } from '../../src/cli/services/profiles.service.js';
 
 const resultsUiDeleteMock$ = new Subject<DeleteResult>();
 const setDeleteAllWarningVisibilityMock = jest.fn();
@@ -176,7 +177,7 @@ describe('CliController test', () => {
       uiServiceMock as unknown as UiService,
       scanServiceMock as unknown as ScanService,
       jsonOutputServiceMock as unknown as JsonOutputService,
-      profilesServiceMock as unknown as any,
+      profilesServiceMock as unknown as ProfilesService,
     );
 
     Object.defineProperty(process.stdout, 'columns', { value: 80 });
@@ -333,7 +334,6 @@ describe('CliController test', () => {
       it('Should enable JSON stream mode when --json-stream is provided', () => {
         mockParameters({ jsonStream: true });
         const setupJsonSignalsSpy = spyMethod('setupJsonModeSignalHandlers');
-        const exitWithErrorSpy = spyMethod('exitWithError');
 
         cliController.init();
 
@@ -344,7 +344,6 @@ describe('CliController test', () => {
       it('Should enable JSON simple mode when --json is provided', () => {
         mockParameters({ jsonSimple: true });
         const setupJsonSignalsSpy = spyMethod('setupJsonModeSignalHandlers');
-        const exitWithErrorSpy = spyMethod('exitWithError');
 
         cliController.init();
 
