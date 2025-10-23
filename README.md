@@ -120,6 +120,7 @@ After pressing <kbd>V</kbd> to enter range selection mode:
 
 ## Options
 
+<<<<<<< HEAD
 | ARGUMENT                         | DESCRIPTION                                                                                                                                                               |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | -c, --bg-color                   | Change row highlight color. _(Available: **blue**, cyan, magenta, white, red and yellow)_                                                                                 |
@@ -133,6 +134,22 @@ After pressing <kbd>V</kbd> to enter range selection mode:
 | -nu, --no-check-update           | Don't check for updates on startup                                                                                                                                        |
 | -s, --sort                       | Sort results by: `size`, `path` or `last-mod`                                                                                                                             |
 | -t, --target                     | Specify the name of the directories you want to search for (by default, searches for Python virtual environments). You can define multiple targets separating with comma. |
+=======
+| ARGUMENT                         | DESCRIPTION                                                                                                                                                                         |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -p, --profiles                   | Allows you to select the [profile](./docs/profiles.md) (set of targets) to use. If no option is specified, the available ones will be listed.. _(**node** by default)_.             |
+| -c, --bg-color                   | Change row highlight color. _(Available: **blue**, cyan, magenta, white, red and yellow)_                                                                                           |
+| -d, --directory                  | Set the directory from which to begin searching. By default, starting-point is .                                                                                                    |
+| -D, --delete-all                 | Automatically delete all node_modules folders that are found. Suggested to be used together with `-x`.                                                                              |
+| -e, --hide-errors                | Hide errors if any                                                                                                                                                                  |
+| -E, --exclude                    | Exclude directories from search (directory list must be inside double quotes "", each directory separated by ',' ) Example: "ignore1, ignore2"                                      |
+| -f, --full                       | Start searching from the home of the user (example: "/home/user" in linux)                                                                                                          |
+| --size-unit                      | Set the unit for displaying folder sizes. _(Available: **auto**, mb, gb)_. With auto, sizes < 1024MB are shown in MB (rounded), larger sizes in GB (with decimals).                 |
+| -h, --help, ?                    | Show this help page and exit                                                                                                                                                        |
+| -nu, --no-check-update           | Don't check for updates on startup                                                                                                                                                  |
+| -s, --sort                       | Sort results by: `size`, `path` or `last-mod`                                                                                                                                       |
+| -t, --target                     | Specify the name of the directories you want to search for (by default, it's 'node_modules'). You can define multiple targets separating with comma. Ej. `-t node_modules,.cache,`. |
+>>>>>>> upstream/main
 |                                  |
 | -x, --exclude-hidden-directories | Exclude hidden directories ("dot" directories) from search.                                                                                                               |
 | --dry-run                        | It does not delete anything (will simulate it with a random delay).                                                                                                       |

@@ -5,3 +5,5 @@ export * from './sort.result.js';
 export * from './spinner.constants.js';
 export * from './update.constants.js';
 export * from './options.constants.js';
+export * from './result-descriptions.constants.js';
+export * from './profiles.constants.js';
