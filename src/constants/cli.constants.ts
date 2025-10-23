@@ -1,5 +1,5 @@
 import { ICliOptions } from '../cli/interfaces/index.js';
-import colors from 'colors';
+import pc from 'picocolors';
 
 export const OPTIONS: ICliOptions[] = [
   {
@@ -115,7 +115,7 @@ export const HELP_PROGRESSBAR = ` ------- PROGRESS BAR --------------------
     ┌ (green) Results ready (stats calculated).
     🭲     ┌ (white) Directories examined.
     🭲     🭲      ┌ (gray) Directories pending to be analyzed.
- ${colors.green('▀▀▀▀▀▀▀')}${colors.white('▀▀▀▀')}${colors.gray('▀▀▀▀▀▀▀▀▀▀▀')}
+ ${pc.green('▀▀▀▀▀▀▀')}${pc.white('▀▀▀▀')}${pc.gray('▀▀▀▀▀▀▀▀▀▀▀')}
 `;
 
 export const HELP_FOOTER =

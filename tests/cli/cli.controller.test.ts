@@ -43,7 +43,7 @@ jest.unstable_mockModule(
 jest.unstable_mockModule('../../src/cli/ui/components/general.ui.js', () => ({
   GeneralUi: jest.fn(),
 }));
-jest.unstable_mockModule('../../src/cli/ui/components/help.ui.js', () => ({
+jest.unstable_mockModule('../../src/cli/ui/components/help/help.ui.js', () => ({
   HelpUi: jest.fn(),
 }));
 jest.unstable_mockModule('../../src/cli/ui/components/results.ui.js', () => ({
@@ -134,6 +134,12 @@ describe('CliController test', () => {
     getResultsCount: jest.fn(() => 0),
   };
 
+  const profilesServiceMock = {
+    getAvailableProfilesToPrint: jest.fn(),
+    getTargetsFromProfiles: jest.fn(),
+    getBadProfiles: jest.fn(),
+  };
+
   const npkillDeleteMock = jest.fn().mockImplementation(() => {
     return of({ success: true });
   });
@@ -170,6 +176,7 @@ describe('CliController test', () => {
       uiServiceMock as unknown as UiService,
       scanServiceMock as unknown as ScanService,
       jsonOutputServiceMock as unknown as JsonOutputService,
+      profilesServiceMock as unknown as any,
     );
 
     Object.defineProperty(process.stdout, 'columns', { value: 80 });
