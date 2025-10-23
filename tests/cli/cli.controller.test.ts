@@ -11,6 +11,8 @@ import { UiService } from '../../src/cli/services/ui.service.js';
 import { ScanService } from '../../src/cli/services/scan.service.js';
 import { ERROR_MSG } from '../../src/constants/messages.constants.js';
 import { JsonOutputService } from '../../src/cli/services/json-output.service.js';
+import { ProfilesService } from '../../src/cli/services/profiles.service.js';
+import { DEFAULT_CONFIG } from '../../src/constants/main.constants.js';
 
 const resultsUiDeleteMock$ = new Subject<DeleteResult>();
 const setDeleteAllWarningVisibilityMock = jest.fn();
@@ -43,7 +45,7 @@ jest.unstable_mockModule(
 jest.unstable_mockModule('../../src/cli/ui/components/general.ui.js', () => ({
   GeneralUi: jest.fn(),
 }));
-jest.unstable_mockModule('../../src/cli/ui/components/help.ui.js', () => ({
+jest.unstable_mockModule('../../src/cli/ui/components/help/help.ui.js', () => ({
   HelpUi: jest.fn(),
 }));
 jest.unstable_mockModule('../../src/cli/ui/components/results.ui.js', () => ({
@@ -145,6 +147,11 @@ describe('CliController test', () => {
     startScan$: jest.fn(),
     delete$: npkillDeleteMock,
   } as unknown as Npkill;
+  const profilesServiceMock = {
+    getAvailableProfilesToPrint: jest.fn(),
+    getBadProfiles: jest.fn(),
+    getTargetsFromProfiles: jest.fn(() => ['node_modules']),
+  };
 
   ////////// mocked Controller Methods
   let showHelpSpy;
@@ -155,6 +162,12 @@ describe('CliController test', () => {
   ///////////////////////////////////
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
+    (profilesServiceMock.getTargetsFromProfiles as jest.Mock).mockReturnValue([
+      'node_modules',
+    ]);
+
     exitSpy = jest.spyOn(process, 'exit').mockImplementation((number) => {
       throw new Error('process.exit: ' + number);
     });
@@ -170,6 +183,7 @@ describe('CliController test', () => {
       uiServiceMock as unknown as UiService,
       scanServiceMock as unknown as ScanService,
       jsonOutputServiceMock as unknown as JsonOutputService,
+      profilesServiceMock as unknown as ProfilesService,
     );
 
     Object.defineProperty(process.stdout, 'columns', { value: 80 });
@@ -218,6 +232,12 @@ describe('CliController test', () => {
     afterEach(() => {
       jest.spyOn(process, 'exit').mockReset();
       mockParameters({});
+      // Reset DEFAULT_CONFIG to avoid test pollution
+      DEFAULT_CONFIG.jsonStream = false;
+      DEFAULT_CONFIG.jsonSimple = false;
+      DEFAULT_CONFIG.deleteAll = false;
+      DEFAULT_CONFIG.dryRun = false;
+      DEFAULT_CONFIG.sortBy = 'none';
     });
 
     it('#showHelp should called if --help flag is present and exit', () => {
@@ -259,10 +279,16 @@ describe('CliController test', () => {
     describe('--delete-all', () => {
       beforeEach(() => {
         jest.clearAllMocks();
+        (
+          profilesServiceMock.getTargetsFromProfiles as jest.Mock
+        ).mockReturnValue(['node_modules']);
       });
 
-      it('Should show a warning before start scan', () => {
-        mockParameters({ 'delete-all': true });
+      it('Should show a warning before start scan with --target defined', () => {
+        mockParameters({
+          'delete-all': true,
+          'target-folder': 'node_modules',
+        });
         expect(setDeleteAllWarningVisibilityMock).toHaveBeenCalledTimes(0);
         expect(scanSpy).toHaveBeenCalledTimes(0);
 
@@ -272,7 +298,11 @@ describe('CliController test', () => {
       });
 
       it('Should no show a warning if -y is given', () => {
-        mockParameters({ 'delete-all': true, yes: true });
+        mockParameters({
+          'delete-all': true,
+          yes: true,
+          'target-folder': 'node_modules',
+        });
         expect(setDeleteAllWarningVisibilityMock).toHaveBeenCalledTimes(0);
         expect(scanSpy).toHaveBeenCalledTimes(0);
 
@@ -294,7 +324,14 @@ describe('CliController test', () => {
       });
 
       it('Should call normal deleteDir function when no --dry-run is included', () => {
+<<<<<<< HEAD
         mockParameters({ targets: ['.venv'], 'dry-run': 'false' });
+=======
+        mockParameters({
+          'target-folder': 'node_modules',
+          'dry-run': 'false',
+        });
+>>>>>>> upstream/main
         cliController.init();
 
         expect(npkillDeleteMock).toHaveBeenCalledTimes(0);
@@ -308,7 +345,11 @@ describe('CliController test', () => {
       });
 
       it('Should call fake deleteDir function instead of deleteDir', () => {
+<<<<<<< HEAD
         mockParameters({ targets: ['.venv'], 'dry-run': true });
+=======
+        mockParameters({ 'target-folder': 'node_modules', 'dry-run': true });
+>>>>>>> upstream/main
         cliController.init();
 
         expect(npkillDeleteMock).toHaveBeenCalledTimes(0);
@@ -326,7 +367,6 @@ describe('CliController test', () => {
       it('Should enable JSON stream mode when --json-stream is provided', () => {
         mockParameters({ jsonStream: true });
         const setupJsonSignalsSpy = spyMethod('setupJsonModeSignalHandlers');
-        const exitWithErrorSpy = spyMethod('exitWithError');
 
         cliController.init();
 
@@ -337,7 +377,6 @@ describe('CliController test', () => {
       it('Should enable JSON simple mode when --json is provided', () => {
         mockParameters({ jsonSimple: true });
         const setupJsonSignalsSpy = spyMethod('setupJsonModeSignalHandlers');
-        const exitWithErrorSpy = spyMethod('exitWithError');
 
         cliController.init();
 
