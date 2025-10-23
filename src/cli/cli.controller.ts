@@ -1,18 +1,20 @@
 import {
   ConsoleService,
+  ProfilesService,
   ResultsService,
   SpinnerService,
   UpdateService,
 } from './services/index.js';
 import {
   DEFAULT_CONFIG,
+  DEFAULT_PROFILE,
   MIN_CLI_COLUMNS_SIZE,
   UI_POSITIONS,
 } from '../constants/index.js';
 import { ERROR_MSG, INFO_MSGS } from '../constants/messages.constants.js';
 import { IConfig, CliScanFoundFolder, IKeyPress } from './interfaces/index.js';
 import { firstValueFrom, Subject } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { mergeMap, tap } from 'rxjs/operators';
 
 import { COLORS } from '../constants/cli.constants.js';
 import { FOLDER_SORT } from '../constants/sort.result.js';
@@ -33,7 +35,7 @@ import { MENU_BAR_OPTIONS } from './ui/components/header/header-ui.constants.js'
 
 import { UiService } from './services/ui.service.js';
 import _dirname from '../dirname.js';
-import colors from 'colors';
+import pc from 'picocolors';
 import { homedir } from 'os';
 import path from 'path';
 import openExplorer from 'open-file-explorer';
@@ -73,6 +75,7 @@ export class CliController {
     private readonly uiService: UiService,
     private readonly scanService: ScanService,
     private readonly jsonOutputService: JsonOutputService,
+    private readonly profilesService: ProfilesService,
   ) {}
 
   init(): void {
@@ -249,17 +252,45 @@ export class CliController {
     const options = this.consoleService.getParameters(process.argv);
     if (options.isTrue('help')) {
       this.showHelp();
-      // eslint-disable-next-line n/no-process-exit
-      process.exit(0);
+      this.exitGracefully();
     }
     if (options.isTrue('version')) {
       this.showProgramVersion();
-      // eslint-disable-next-line n/no-process-exit
-      process.exit(0);
+      this.exitGracefully();
     }
+
+    if (options.isTrue('profiles') && options.isTrue('target-folder')) {
+      console.log(
+        'Cannot use both --profiles and --target-folder options together.',
+      );
+      this.exitGracefully();
+    }
+
+    if (
+      options.isTrue('profiles') &&
+      options.getStrings('profiles').length === 0
+    ) {
+      // TODO check user defined
+      const defaultProfile = DEFAULT_PROFILE;
+      console.log(pc.bold(pc.bgYellow(pc.black(' Available profiles '))));
+      console.log(
+        `Remember: ${pc.bold(pc.yellow('context matters'))}. What's safe to remove in one project or ecosystem could be important in another.\n`,
+      );
+      console.log(
+        this.profilesService.getAvailableProfilesToPrint(defaultProfile),
+      );
+      this.exitGracefully();
+    }
+
     if (options.isTrue('delete-all')) {
+      if (!options.isTrue('target-folder') || options.isTrue('profiles')) {
+        // TODO mejorar mensaje e incluir tip buscar lista targets de un profile.
+        console.log('--delete-all only can be used with --target-folder.');
+        this.exitWithError();
+      }
       this.config.deleteAll = true;
     }
+
     if (options.isTrue('sort-by')) {
       if (!this.isValidSortParam(options.getString('sort-by'))) {
         this.invalidSortParam();
@@ -302,6 +333,43 @@ export class CliController {
     if (options.isTrue('no-check-updates')) {
       this.config.checkUpdates = false;
     }
+
+    if (!options.isTrue('target-folder')) {
+      if (!options.isTrue('profiles')) {
+        this.logger.info(`Using default profile targets (${DEFAULT_PROFILE})`);
+        this.config.targets = this.profilesService.getTargetsFromProfiles([
+          DEFAULT_PROFILE,
+        ]);
+      } else {
+        const selectedProfiles = options.getStrings('profiles');
+        const badProfiles =
+          this.profilesService.getBadProfiles(selectedProfiles);
+
+        if (badProfiles.length > 0) {
+          this.logger.warn(
+            `The following profiles are invalid: ${badProfiles.join(', ')}`,
+          );
+          const profileText = badProfiles.length > 1 ? 'profiles' : 'profile';
+          console.log(pc.bold(pc.bgRed(pc.white(` Invalid ${profileText} `))));
+          console.log(
+            `The following ${profileText} are invalid: ${pc.red(badProfiles.join(', '))}.`,
+          );
+          console.log(
+            `You can list the available profiles with ${pc.bold(pc.green('--profiles'))} command ${pc.gray('(without arguments)')}.`,
+          );
+          this.exitWithError();
+        }
+
+        const targets =
+          this.profilesService.getTargetsFromProfiles(selectedProfiles);
+        this.logger.info(
+          `Using profiles ${selectedProfiles.join(', ')} | With targets ${targets.join(', ')}`,
+        );
+        this.config.profiles = selectedProfiles;
+        this.config.targets = targets;
+      }
+    }
+
     if (options.isTrue('target-folder')) {
       this.config.targets = options.getString('target-folder').split(',');
     }
@@ -456,7 +524,7 @@ export class CliController {
   }
 
   private showUpdateMessage(): void {
-    const message = colors.magenta(INFO_MSGS.NEW_UPDATE_FOUND);
+    const message = pc.magenta(INFO_MSGS.NEW_UPDATE_FOUND);
     this.uiService.printAt(message, UI_POSITIONS.NEW_UPDATE_FOUND);
   }
 
@@ -542,7 +610,7 @@ export class CliController {
         error: (error) => this.jsonOutputService.writeError(error),
         complete: () => {
           this.jsonOutputService.completeScan();
-          process.exit(0);
+          this.exitGracefully();
         },
       });
   }
@@ -571,7 +639,7 @@ export class CliController {
   private setupJsonModeSignalHandlers(): void {
     const gracefulShutdown = () => {
       this.jsonOutputService.handleShutdown();
-      process.exit(0);
+      this.exitGracefully();
     };
 
     process.on('SIGINT', gracefulShutdown);
@@ -625,13 +693,19 @@ export class CliController {
   }
 
   private exitWithError(): void {
-    this.uiService.print('\n');
-    this.uiService.setRawMode(false);
-    this.uiService.setCursorVisible(true);
+    this.resetConsoleState();
     const logPath = this.logger.getSuggestLogFilePath();
     this.logger.saveToFile(logPath);
     // eslint-disable-next-line n/no-process-exit
     process.exit(1);
+  }
+
+  private exitGracefully(): void {
+    this.resetConsoleState();
+    const logPath = this.logger.getSuggestLogFilePath();
+    this.logger.saveToFile(logPath);
+    // eslint-disable-next-line n/no-process-exit
+    process.exit(0);
   }
 
   private quit(): void {
@@ -644,6 +718,12 @@ export class CliController {
     this.logger.saveToFile(logPath);
     // eslint-disable-next-line n/no-process-exit
     process.exit(0);
+  }
+
+  private resetConsoleState(): void {
+    this.uiService.print('\n');
+    this.uiService.setRawMode(false);
+    this.uiService.setCursorVisible(true);
   }
 
   private printExitMessage(): void {
