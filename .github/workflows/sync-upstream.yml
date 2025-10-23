@@ -159,6 +159,8 @@ jobs:
 
       - name: Create Pull Request for Conflicts
         if: steps.check_commits.outputs.has_new_commits == 'true' && env.MERGE_SUCCESS == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Switch back to main branch before creating PR
           git checkout main
