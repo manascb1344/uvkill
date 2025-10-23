@@ -11,6 +11,7 @@ import { UiService } from '../../src/cli/services/ui.service.js';
 import { ScanService } from '../../src/cli/services/scan.service.js';
 import { ERROR_MSG } from '../../src/constants/messages.constants.js';
 import { JsonOutputService } from '../../src/cli/services/json-output.service.js';
+import { ProfilesService } from '../../src/cli/services/profiles.service.js';
 
 const resultsUiDeleteMock$ = new Subject<DeleteResult>();
 const setDeleteAllWarningVisibilityMock = jest.fn();
@@ -43,7 +44,7 @@ jest.unstable_mockModule(
 jest.unstable_mockModule('../../src/cli/ui/components/general.ui.js', () => ({
   GeneralUi: jest.fn(),
 }));
-jest.unstable_mockModule('../../src/cli/ui/components/help.ui.js', () => ({
+jest.unstable_mockModule('../../src/cli/ui/components/help/help.ui.js', () => ({
   HelpUi: jest.fn(),
 }));
 jest.unstable_mockModule('../../src/cli/ui/components/results.ui.js', () => ({
@@ -102,8 +103,19 @@ describe('CliController test', () => {
   };
   const spinnerServiceMock = jest.fn();
   const updateServiceMock = jest.fn();
-  const resultServiceMock = jest.fn();
-  const searchStatusMock = jest.fn();
+  const resultServiceMock = {
+    reset: jest.fn(),
+    addResult: jest.fn(),
+    sortResults: jest.fn(),
+    setSizeUnit: jest.fn(),
+    getStats: jest.fn(() => ({ spaceReleased: '0 MB' })),
+  };
+  const searchStatusMock = {
+    reset: jest.fn(),
+    newResult: jest.fn(),
+    completeStatCalculation: jest.fn(),
+    pendingDeletions: 0,
+  };
   const loggerServiceMock: Partial<LoggerService> = {
     info: jest.fn(),
     error: jest.fn(),
@@ -119,8 +131,8 @@ describe('CliController test', () => {
     renderAll: jest.fn(),
   };
   const scanServiceMock = {
-    scan: jest.fn(),
-    calculateFolderStats: jest.fn(),
+    scan: jest.fn().mockReturnValue(of({})),
+    calculateFolderStats: jest.fn().mockReturnValue(of({})),
   };
   const consoleServiceMock = {
     getParameters: () => new StartParameters(),
@@ -132,6 +144,18 @@ describe('CliController test', () => {
     initializeSession: jest.fn(),
     writeStreamResult: jest.fn(),
     getResultsCount: jest.fn(() => 0),
+    processResult: jest.fn(),
+    writeError: jest.fn(),
+    completeScan: jest.fn(),
+    handleShutdown: jest.fn(),
+  };
+
+  const profilesServiceMock = {
+    getAvailableProfilesToPrint: jest
+      .fn()
+      .mockReturnValue('Available profiles'),
+    getTargetsFromProfiles: jest.fn().mockReturnValue(['.venv', 'venv']),
+    getBadProfiles: jest.fn().mockReturnValue([]),
   };
 
   const npkillDeleteMock = jest.fn().mockImplementation(() => {
@@ -170,6 +194,7 @@ describe('CliController test', () => {
       uiServiceMock as unknown as UiService,
       scanServiceMock as unknown as ScanService,
       jsonOutputServiceMock as unknown as JsonOutputService,
+      profilesServiceMock as unknown as ProfilesService,
     );
 
     Object.defineProperty(process.stdout, 'columns', { value: 80 });
@@ -262,7 +287,7 @@ describe('CliController test', () => {
       });
 
       it('Should show a warning before start scan', () => {
-        mockParameters({ 'delete-all': true });
+        mockParameters({ 'delete-all': true, 'target-folder': '.venv' });
         expect(setDeleteAllWarningVisibilityMock).toHaveBeenCalledTimes(0);
         expect(scanSpy).toHaveBeenCalledTimes(0);
 
@@ -272,7 +297,11 @@ describe('CliController test', () => {
       });
 
       it('Should no show a warning if -y is given', () => {
-        mockParameters({ 'delete-all': true, yes: true });
+        mockParameters({
+          'delete-all': true,
+          yes: true,
+          'target-folder': '.venv',
+        });
         expect(setDeleteAllWarningVisibilityMock).toHaveBeenCalledTimes(0);
         expect(scanSpy).toHaveBeenCalledTimes(0);
 
@@ -323,10 +352,35 @@ describe('CliController test', () => {
     });
 
     describe('--json and --json-stream options', () => {
+      beforeEach(() => {
+        jest.clearAllMocks();
+        // Reset controller state
+        cliController = new CliController(
+          process.stdout,
+          npkillMock,
+          loggerServiceMock as LoggerService,
+          searchStatusMock as unknown as ScanStatus,
+          resultServiceMock as unknown as ResultsService,
+          spinnerServiceMock as unknown as SpinnerService,
+          consoleServiceMock as unknown as ConsoleService,
+          updateServiceMock as unknown as UpdateService,
+          uiServiceMock as unknown as UiService,
+          scanServiceMock as unknown as ScanService,
+          jsonOutputServiceMock as unknown as JsonOutputService,
+          profilesServiceMock as unknown as ProfilesService,
+        );
+        // Reset config properties that might be set from previous tests
+        (cliController as any).config.jsonStream = false;
+        (cliController as any).config.jsonSimple = false;
+        // Recreate the spy after creating the new controller instance
+        scanSpy = jest
+          .spyOn(cliController, 'scan')
+          .mockImplementation(() => ({}));
+      });
+
       it('Should enable JSON stream mode when --json-stream is provided', () => {
         mockParameters({ jsonStream: true });
         const setupJsonSignalsSpy = spyMethod('setupJsonModeSignalHandlers');
-        const exitWithErrorSpy = spyMethod('exitWithError');
 
         cliController.init();
 
@@ -337,7 +391,6 @@ describe('CliController test', () => {
       it('Should enable JSON simple mode when --json is provided', () => {
         mockParameters({ jsonSimple: true });
         const setupJsonSignalsSpy = spyMethod('setupJsonModeSignalHandlers');
-        const exitWithErrorSpy = spyMethod('exitWithError');
 
         cliController.init();
 

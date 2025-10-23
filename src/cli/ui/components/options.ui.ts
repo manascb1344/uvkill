@@ -146,11 +146,7 @@ export class OptionsUi extends BaseUi implements InteractiveUi {
       const next = (idx + 1) % opt.options!.length;
       opt.value = opt.options![next] as IConfig[typeof key];
 
-      if (opt.key === 'sizeUnit') {
-        this.config[key] = opt.value as IConfig['sizeUnit'];
-      } else {
-        this.config[opt.key as any] = opt.value as IConfig[typeof opt.key];
-      }
+      this.setConfigValue(key, opt.value);
 
       this.emitConfigChange(opt.key, opt.value);
       this.render();
@@ -181,15 +177,9 @@ export class OptionsUi extends BaseUi implements InteractiveUi {
         this.emitConfigChange(opt.key, arrValue);
         opt.value = this.editBuffer;
       } else {
-        const key = opt.key as keyof Pick<
-          IConfig,
-          {
-            [K in keyof IConfig]: IConfig[K] extends string ? K : never;
-          }[keyof IConfig]
-        >;
         const newValue: IConfig[typeof opt.key] = this
           .editBuffer as IConfig[typeof opt.key];
-        this.config[key as any] = newValue as unknown as string;
+        this.setConfigValue(opt.key, newValue);
         opt.value = newValue;
         this.emitConfigChange(opt.key, newValue);
       }
@@ -314,6 +304,18 @@ export class OptionsUi extends BaseUi implements InteractiveUi {
       x: 15,
       y: MARGINS.ROW_RESULTS_START,
     });
+  }
+
+  /**
+   * Type-safe setter for config values that ensures type safety
+   * @param key - The config key to set
+   * @param value - The value to set (must match the expected type for the key)
+   */
+  private setConfigValue<K extends keyof IConfig>(
+    key: K,
+    value: IConfig[K],
+  ): void {
+    this.config[key] = value;
   }
 
   clear(): void {

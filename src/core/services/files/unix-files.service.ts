@@ -1,10 +1,8 @@
 import { exec } from 'child_process';
 
 import { FileService } from './files.service.js';
-import { Observable, Subject } from 'rxjs';
 import { StreamService } from '../stream.service.js';
 import { FileWorkerService } from './files.worker.service.js';
-import { ScanOptions } from '@core/index.js';
 
 export class UnixFilesService extends FileService {
   constructor(

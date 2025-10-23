@@ -308,7 +308,7 @@ class FileWalker {
       if (existsSync(pythonUnix) || existsSync(pythonWin)) {
         return true;
       }
-    } catch (error) {
+    } catch {
       // If we can't access the directory, assume it's not a virtual env
       return false;
     }
