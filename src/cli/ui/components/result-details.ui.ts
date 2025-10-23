@@ -2,11 +2,11 @@ import { MARGINS } from '../../../constants/main.constants.js';
 import { BaseUi, InteractiveUi } from '../base.ui.js';
 import { IKeyPress } from '../../interfaces/key-press.interface.js';
 import { Subject } from 'rxjs';
-import colors from 'colors';
+import pc from 'picocolors';
 import { resolve } from 'node:path';
 import { CliScanFoundFolder } from '../../../cli/interfaces/stats.interface.js';
 import { formatSize } from '../../../utils/unit-conversions.js';
-import { RESULT_TYPE_INFO } from '../../../constants/messages.constants.js';
+import { RESULT_TYPE_INFO } from '../../../constants/index.js';
 import { IConfig } from '../../interfaces/config.interface.js';
 
 export class ResultDetailsUi extends BaseUi implements InteractiveUi {
@@ -94,7 +94,7 @@ export class ResultDetailsUi extends BaseUi implements InteractiveUi {
     };
 
     // Header
-    this.printAt(colors.bold.bgYellow.black('  Result Details  '), {
+    this.printAt(pc.bold(pc.bgYellow(pc.black('  Result Details  '))), {
       x: 1,
       y: currentRow++,
     });
@@ -103,7 +103,7 @@ export class ResultDetailsUi extends BaseUi implements InteractiveUi {
     // Path
     const folderName = path.split(/[/\\]/).filter(Boolean).pop() || '';
     const wrappedPath = wrapPath(path, maxWidth - 4);
-    this.printAt(colors.cyan('Path:'), { x: 2, y: currentRow++ });
+    this.printAt(pc.cyan('Path:'), { x: 2, y: currentRow++ });
     for (let i = 0; i < wrappedPath.length; i++) {
       const line = wrappedPath[i];
       const isLastLine = i === wrappedPath.length - 1;
@@ -112,7 +112,7 @@ export class ResultDetailsUi extends BaseUi implements InteractiveUi {
         const idx = line.lastIndexOf(folderName);
         const before = line.slice(0, idx);
         const name = line.slice(idx);
-        this.printAt('  ' + before + colors.yellow.underline(name), {
+        this.printAt('  ' + before + pc.yellow(pc.underline(name)), {
           x: 2,
           y: currentRow++,
         });
@@ -123,19 +123,25 @@ export class ResultDetailsUi extends BaseUi implements InteractiveUi {
 
     // Size, Modified
     const formattedSize = formatSize(size, this.config.sizeUnit);
-    drawLabel('Size:', formattedSize.text, colors.yellow);
+    drawLabel(
+      'Size:',
+      size ? formattedSize.text : '...',
+      size ? pc.yellow : pc.gray,
+    );
     drawLabel(
       'Modified:',
-      new Date(modificationTime * 1000).toLocaleString(),
-      colors.gray,
+      modificationTime > 0
+        ? new Date(modificationTime * 1000).toLocaleString()
+        : '...',
+      pc.gray,
     );
 
     // Status
     const statusColors = {
-      live: colors.green,
-      deleting: colors.yellow,
-      'error-deleting': colors.red,
-      deleted: colors.gray,
+      live: pc.green,
+      deleting: pc.yellow,
+      'error-deleting': pc.red,
+      deleted: pc.gray,
     };
     drawLabel('Status:', status, statusColors[status]);
 
@@ -143,13 +149,13 @@ export class ResultDetailsUi extends BaseUi implements InteractiveUi {
     drawLabel(
       'Delicate:',
       riskAnalysis?.isSensitive ? 'YES ⚠️' : 'No',
-      riskAnalysis?.isSensitive ? colors.red.bold : colors.green,
+      riskAnalysis?.isSensitive ? (v) => pc.red(pc.bold(v)) : pc.green,
     );
 
     if (riskAnalysis?.isSensitive && riskAnalysis.reason) {
       const reasonLines = wrapPath(riskAnalysis?.reason + '.', maxWidth - 16);
       for (const line of reasonLines) {
-        this.printAt('  ' + colors.red.italic(line), {
+        this.printAt('  ' + pc.red(pc.italic(line)), {
           x: 16,
           y: currentRow++,
         });
@@ -158,29 +164,51 @@ export class ResultDetailsUi extends BaseUi implements InteractiveUi {
 
     // Footer
     currentRow++;
-    this.printAt(
-      colors.gray('← Back    ') + colors.gray('o: Open parent folder'),
-      {
-        x: 2,
-        y: currentRow++,
-      },
-    );
+    this.printAt(pc.gray('← Back    ') + pc.gray('o: Open parent folder'), {
+      x: 2,
+      y: currentRow++,
+    });
 
     // Target folder details
-    const targetInfo = RESULT_TYPE_INFO[folderName.toUpperCase()];
+    const folderKey = folderName.toLowerCase();
+    const targetInfo: string = RESULT_TYPE_INFO[folderKey];
+
     if (targetInfo) {
       currentRow += 2;
-      this.printAt(colors.bold.bgBlack.gray(` ${folderName} info `), {
+      this.printAt(pc.bold(pc.bgBlack(pc.gray(` ${folderName} info `))), {
         x: 2,
         y: currentRow++,
       });
-      // drawLabel('Info:', targetInfo, (text) => colors.gray.italic(text));
-      const infoLines = wrapText(targetInfo, maxWidth - 2);
-      for (const line of infoLines) {
-        this.printAt(colors.gray(line), {
-          x: 2,
-          y: currentRow++,
-        });
+
+      const warningMatch = targetInfo.match(/^(.*?)\s*WARNING:\s*(.*)$/s);
+
+      if (warningMatch) {
+        const mainInfo = warningMatch[1].trim();
+        const warningText = warningMatch[2].trim();
+
+        const infoLines = wrapText(mainInfo, maxWidth - 2);
+        for (const line of infoLines) {
+          this.printAt(pc.gray(line), {
+            x: 2,
+            y: currentRow++,
+          });
+        }
+
+        const warningLines = wrapText(`⚠️ ${warningText}`, maxWidth - 2);
+        for (const line of warningLines) {
+          this.printAt(pc.yellow(line), {
+            x: 2,
+            y: currentRow++,
+          });
+        }
+      } else {
+        const infoLines = wrapText(targetInfo, maxWidth - 2);
+        for (const line of infoLines) {
+          this.printAt(pc.gray(line), {
+            x: 2,
+            y: currentRow++,
+          });
+        }
       }
     }
   }

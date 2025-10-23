@@ -44,8 +44,3 @@ export const ERROR_MSG = {
   CANT_USE_BOTH_JSON_OPTIONS:
     'Cannot use both --json and --json-stream options simultaneously.',
 };
-
-export const RESULT_TYPE_INFO = {
-  VIRTUAL_ENV:
-    "Contains Python packages and dependencies for a project. Can get huge. Deleting it won't hurt the project—you can recreate it using requirements.txt or similar.",
-};
