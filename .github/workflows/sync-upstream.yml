@@ -163,6 +163,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.SYNC_BRANCH }}
+          base: main
           title: '⚠️ Manual sync required - Upstream merge conflicts detected'
           body: |
             ## ⚠️ Upstream Sync Conflicts
