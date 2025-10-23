@@ -369,6 +369,13 @@ describe('CliController test', () => {
           jsonOutputServiceMock as unknown as JsonOutputService,
           profilesServiceMock as unknown as ProfilesService,
         );
+        // Reset config properties that might be set from previous tests
+        (cliController as any).config.jsonStream = false;
+        (cliController as any).config.jsonSimple = false;
+        // Recreate the spy after creating the new controller instance
+        scanSpy = jest
+          .spyOn(cliController, 'scan')
+          .mockImplementation(() => ({}));
       });
 
       it('Should enable JSON stream mode when --json-stream is provided', () => {
