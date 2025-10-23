@@ -152,6 +152,11 @@ jobs:
           Please resolve conflicts and test before merging."
           echo "✅ Committed conflicted state for PR review"
 
+      - name: Push conflicted branch
+        if: steps.check_commits.outputs.has_new_commits == 'true' && env.MERGE_SUCCESS == 'false'
+        run: |
+          git push origin $SYNC_BRANCH
+
       - name: Create PR for conflicts (manual review required)
         if: steps.check_commits.outputs.has_new_commits == 'true' && env.MERGE_SUCCESS == 'false'
         uses: peter-evans/create-pull-request@v7
