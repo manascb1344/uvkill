@@ -47,7 +47,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-          token: ${{ secrets.NPM_TOKEN }}
+
+      - name: Setup NPM Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          cat ~/.npmrc
 
       - name: Verify NPM Authentication
         run: |
