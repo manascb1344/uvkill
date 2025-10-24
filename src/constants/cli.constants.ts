@@ -3,10 +3,10 @@ import pc from 'picocolors';
 
 export const OPTIONS: ICliOptions[] = [
   {
-    arg: ['-c', '--bg-color'],
+    arg: ['-p', '--profiles'],
     description:
-      'Change row highlight color. Available colors are: blue, cyan, magenta, red, white and yellow. Default is blue.',
-    name: 'bg-color',
+      'Specifies profiles (presets) of folders to search, separated by commas (e.g., `-p python,java`, `-p all`). If used without a value, lists the available profiles. Default: `node`.',
+    name: 'profiles',
   },
   {
     arg: ['-d', '--directory'],

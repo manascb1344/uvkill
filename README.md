@@ -123,7 +123,6 @@ After pressing <kbd>V</kbd> to enter range selection mode:
 | ARGUMENT                         | DESCRIPTION                                                                                                                                                                         |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | -p, --profiles                   | Allows you to select the [profile](./docs/profiles.md) (set of targets) to use. If no option is specified, the available ones will be listed.. _(**node** by default)_.             |
-| -c, --bg-color                   | Change row highlight color. _(Available: **blue**, cyan, magenta, white, red and yellow)_                                                                                           |
 | -d, --directory                  | Set the directory from which to begin searching. By default, starting-point is .                                                                                                    |
 | -D, --delete-all                 | Automatically delete all node_modules folders that are found. Suggested to be used together with `-x`.                                                                              |
 | -e, --hide-errors                | Hide errors if any                                                                                                                                                                  |
@@ -161,12 +160,6 @@ uvkill
 
 ```bash
 uvkill --target .venv -e
-```
-
-- Displays the magenta color cursor... because I like magenta!
-
-```bash
-uvkill --bg-color magenta
 ```
 
 - List **virtual environments** in your _projects_ directory, sort by size, and show size in gb:
