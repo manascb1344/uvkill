@@ -11,7 +11,7 @@
     "access": "public"
   },
   "bin": {
-    "uvkill": "lib/bin/uvkill.js"
+    "uvkill": "lib/index.js"
   },
   "author": "Modified from NPKill for Python environments",
   "repository": {
