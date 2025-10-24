@@ -1,0 +1,179 @@
+name: Auto Version and Deploy
+
+on:
+  # Trigger when PR is merged to main (auto-increment patch version)
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/auto-version.yml'
+  
+  # Manual trigger for full deployment
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Type of version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: 'Custom version (overrides version_bump)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  auto-version:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+
+      - name: Build project
+        run: npm run build
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(npm pkg get version | tr -d '"')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Calculate new version
+        id: new_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+              NEW_VERSION="${{ github.event.inputs.custom_version }}"
+              echo "Using custom version: $NEW_VERSION"
+            else
+              VERSION_BUMP="${{ github.event.inputs.version_bump }}"
+              echo "Bumping $VERSION_BUMP version..."
+              npm version $VERSION_BUMP --no-git-tag-version
+              NEW_VERSION=$(npm pkg get version | tr -d '"')
+            fi
+          else
+            # Auto-increment patch version for PR merges (0.1.4 → 0.1.5)
+            echo "Auto-incrementing patch version..."
+            npm version patch --no-git-tag-version
+            NEW_VERSION=$(npm pkg get version | tr -d '"')
+          fi
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Check if version exists on NPM
+        id: check_version
+        run: |
+          PACKAGE_NAME=$(npm pkg get name | tr -d '"')
+          PACKAGE_VERSION="${{ steps.new_version.outputs.new_version }}"
+          
+          echo "Checking if $PACKAGE_NAME@$PACKAGE_VERSION exists on NPM..."
+          
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "❌ Version $PACKAGE_VERSION already exists on NPM"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Version $PACKAGE_VERSION is available for publishing"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit version bump
+        if: steps.check_version.outputs.exists == 'false'
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to ${{ steps.new_version.outputs.new_version }} [skip ci]"
+          git push origin main
+
+      - name: Create Git tag
+        if: steps.check_version.outputs.exists == 'false'
+        run: |
+          git tag -a "v${{ steps.new_version.outputs.new_version }}" -m "Release v${{ steps.new_version.outputs.new_version }}"
+          git push origin "v${{ steps.new_version.outputs.new_version }}"
+
+      - name: Publish to NPM
+        if: steps.check_version.outputs.exists == 'false'
+        run: |
+          echo "🚀 Publishing to NPM..."
+          npm publish
+          echo "✅ Successfully published to NPM!"
+
+      - name: Create GitHub Release
+        if: steps.check_version.outputs.exists == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new_version.outputs.new_version }}
+          release_name: Release v${{ steps.new_version.outputs.new_version }}
+          body: |
+            ## 🚀 UVKill v${{ steps.new_version.outputs.new_version }}
+            
+            **Auto-generated release** from ${{ github.event_name == 'workflow_dispatch' && 'manual trigger' || 'PR merge to main' }}.
+            
+            ### Installation
+            ```bash
+            npm install -g uvkill@${{ steps.new_version.outputs.new_version }}
+            # or
+            npx uvkill@${{ steps.new_version.outputs.new_version }}
+            ```
+            
+            ### Changes
+            See the commit history for detailed changes.
+            
+            ### What's New
+            - Python virtual environment detection and cleanup
+            - Interactive CLI with multi-select support
+            - JSON output support for automation
+            - Cross-platform compatibility
+            
+            **Full Changelog**: https://github.com/manascb1344/uvkill/compare/v${{ steps.new_version.outputs.new_version }}...v${{ steps.new_version.outputs.new_version }}
+          draft: false
+          prerelease: false
+
+      - name: Skip publish (version exists)
+        if: steps.check_version.outputs.exists == 'true'
+        run: |
+          echo "⚠️ Skipping publish - version already exists on NPM"
+          echo "If you need to republish, please bump the version first"
+
+      - name: Deployment Summary
+        run: |
+          echo "## 🎉 Deployment Summary"
+          echo "**Previous Version:** ${{ steps.current_version.outputs.current_version }}"
+          echo "**New Version:** ${{ steps.new_version.outputs.new_version }}"
+          echo "**Status:** ${{ steps.check_version.outputs.exists == 'false' && '✅ Published' || '⚠️ Skipped (version exists)' }}"
+          echo "**NPM Package:** https://www.npmjs.com/package/uvkill"
+          echo "**GitHub Release:** https://github.com/manascb1344/uvkill/releases/tag/v${{ steps.new_version.outputs.new_version }}"
